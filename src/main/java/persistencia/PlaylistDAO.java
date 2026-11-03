@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import negocio.Musica;
 
 import negocio.Playlist;
 
@@ -77,15 +78,15 @@ public class PlaylistDAO {
 
     public Playlist buscarPorId(int id) {
         Playlist playlist = null;
-        String sql = "SELECT p.id, p.nome, p.publica, u.nome AS dono_nome " +
-                     "FROM playlist p " +
-                     "LEFT JOIN usuario_playlist up ON p.id = up.playlist_id AND up.dono = true " +
-                     "LEFT JOIN usuario u ON up.usuario_id = u.id " +
-                     "WHERE p.id = ?;";
+        String sql = "SELECT p.id, p.nome, p.publica, p.data_hora_criacao, u.nome AS dono_nome " +
+                "FROM playlist p " +
+                "LEFT JOIN usuario_playlist up ON p.id = up.playlist_id AND up.dono = true " +
+                "LEFT JOIN usuario u ON up.usuario_id = u.id " +
+                "WHERE p.id = ?;";
 
         try (Connection conexao = new ConexaoPostgreSQL().getConexao();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-             
+                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -94,6 +95,11 @@ public class PlaylistDAO {
                     playlist.setNome(rs.getString("nome"));
                     playlist.setPublica(rs.getBoolean("publica"));
                     playlist.setDono_nome(rs.getString("dono_nome"));
+
+                    java.sql.Timestamp criacao = rs.getTimestamp("data_hora_criacao");
+                    if (criacao != null) {
+                        playlist.setDataHoraCriacao(criacao.toLocalDateTime());
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -102,11 +108,38 @@ public class PlaylistDAO {
         return playlist;
     }
 
+    public List<Musica> listarMusicas(int playlistId) {
+        List<Musica> musicas = new ArrayList<>();
+        String sql = "SELECT m.id, m.nome, m.duracao " +
+                "FROM playlist_musica pm " +
+                "INNER JOIN musica m ON m.id = pm.musica_id " +
+                "WHERE pm.playlist_id = ? " +
+                "ORDER BY m.nome;";
+
+        try (Connection conexao = new ConexaoPostgreSQL().getConexao();
+                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
+            stmt.setInt(1, playlistId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Musica m = new Musica();
+                    m.setId(rs.getInt("id"));
+                    m.setNome(rs.getString("nome"));
+                    m.setDuracao(rs.getTime("duracao"));
+                    musicas.add(m);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao listar músicas da playlist: " + e.getMessage());
+        }
+        return musicas;
+    }
+
     public boolean alterar(Playlist playlist) {
         String sql = "UPDATE playlist SET nome = ?, publica = ? WHERE id = ?;";
 
         try (Connection conexao = new ConexaoPostgreSQL().getConexao();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
+                PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, playlist.getNome());
             stmt.setBoolean(2, playlist.isPublica());
@@ -130,8 +163,8 @@ public class PlaylistDAO {
             conexao.setAutoCommit(false);
 
             try (PreparedStatement stmtVinculo = conexao.prepareStatement(sqlUsuarioPlaylist);
-                 PreparedStatement stmtMusicas = conexao.prepareStatement(sqlPlaylistMusica);
-                 PreparedStatement stmtPlaylist = conexao.prepareStatement(sqlPlaylist)) {
+                    PreparedStatement stmtMusicas = conexao.prepareStatement(sqlPlaylistMusica);
+                    PreparedStatement stmtPlaylist = conexao.prepareStatement(sqlPlaylist)) {
 
                 stmtVinculo.setInt(1, id);
                 stmtVinculo.executeUpdate();

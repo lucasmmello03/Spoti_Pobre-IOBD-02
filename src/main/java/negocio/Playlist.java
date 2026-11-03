@@ -49,4 +49,11 @@ public class Playlist {
     public void setPublica(boolean publica) {
         this.publica = publica;
     }
+
+    public String getDataCriacaoFormatada() {
+        if (dataHoraCriacao == null) {
+            return "";
+        }
+        return dataHoraCriacao.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
 }

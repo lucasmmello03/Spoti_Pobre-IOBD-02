@@ -18,7 +18,7 @@ public class DashboardController {
         app.get("/dashboard", ctx -> {
             Map<String, Object> map = new HashMap<>();
             map.put("albuns", dao.listarCatalogo());
-            map.put("usuarios", usuarioDAO.listar());
+            map.put("usuarios", usuarioDAO.listarComuns());
             map.put("ouvida", ctx.queryParam("ok") != null);
             ctx.render("/templates/dashboard.html", map);
         });

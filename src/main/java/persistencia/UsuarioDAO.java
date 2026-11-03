@@ -1,12 +1,13 @@
 package persistencia;
 
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.sql.Connection;
+
 import negocio.Usuario;
 
 public class UsuarioDAO {
@@ -14,6 +15,30 @@ public class UsuarioDAO {
     public ArrayList<Usuario> listar() {
         ArrayList<Usuario> listaDeUsuarios = new ArrayList<>();
         String sql = "SELECT * FROM usuario ORDER BY id;";
+
+        try (Connection conexao = new ConexaoPostgreSQL().getConexao();
+             PreparedStatement instrucaoSQL = conexao.prepareStatement(sql);
+             ResultSet rs = instrucaoSQL.executeQuery()) {
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setId(rs.getInt("id"));
+                usuario.setDataNascimento(
+                        (rs.getDate("data_nascimento") != null) ? rs.getDate("data_nascimento").toLocalDate() : null);
+                usuario.setEmail(rs.getString("email"));
+                usuario.setNome(rs.getString("nome"));
+                listaDeUsuarios.add(usuario);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao listar usuários: " + e.getMessage());
+        }
+        return listaDeUsuarios;
+    }
+
+
+    public ArrayList<Usuario> listarComuns() {
+        ArrayList<Usuario> listaDeUsuarios = new ArrayList<>();
+        String sql = "SELECT * FROM ONLY usuario ORDER BY id;";
 
         try (Connection conexao = new ConexaoPostgreSQL().getConexao();
              PreparedStatement instrucaoSQL = conexao.prepareStatement(sql);

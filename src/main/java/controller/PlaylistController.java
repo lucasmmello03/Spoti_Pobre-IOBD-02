@@ -22,7 +22,7 @@ public class PlaylistController {
 
         app.get("/playlists/nova", ctx -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("usuarios", usuarioDAO.listar());
+            map.put("usuarios", usuarioDAO.listarComuns());
             ctx.render("/templates/playlists/tela_adicionar.html", map);
         });
 
@@ -42,6 +42,29 @@ public class PlaylistController {
             } else {
                 ctx.html("Erro ao criar playlist.");
             }
+        });
+
+        app.get("/playlists/detalhe/{id}", ctx -> {
+
+            int id;
+            try {
+                id = Integer.parseInt(ctx.pathParam("id"));
+            } catch (NumberFormatException e) {
+                ctx.redirect("/playlists/tela_listagem");
+                return;
+            }
+
+            Playlist playlist = playlistDAO.buscarPorId(id);
+
+            if (playlist == null) {
+                ctx.redirect("/playlists/tela_listagem");
+                return;
+            }
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("playlist", playlist);
+            map.put("musicas", playlistDAO.listarMusicas(id));
+            ctx.render("/templates/playlists/detalhe.html", map);
         });
 
         app.get("/playlists/tela_alterar/{id}", ctx -> {

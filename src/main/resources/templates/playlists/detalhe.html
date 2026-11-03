@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{playlist.nome}} - SpotiPobre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/app.css">
+</head>
+
+<body>
+    <div class="page">
+        <header class="topbar">
+            <a href="/" class="brand">
+                <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                SpotiPobre
+            </a>
+            <nav class="nav" aria-label="Menu principal">
+                <a href="/dashboard">Catálogo</a>
+                <a href="/playlists/tela_listagem" aria-current="page">Playlists</a>
+                <a href="/usuarios">Usuários</a>
+            </nav>
+        </header>
+
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Playlist</p>
+                <h1 class="page-title">{{playlist.nome}}</h1>
+                <p class="page-sub">
+                    {{#playlist.publica}}Pública{{/playlist.publica}}{{^playlist.publica}}Privada{{/playlist.publica}}
+                    · Dono: {{playlist.dono_nome}}{{^playlist.dono_nome}}sem dono{{/playlist.dono_nome}}
+                    · Criada em {{playlist.dataCriacaoFormatada}}
+                </p>
+            </div>
+            <a href="/playlists/tela_alterar/{{playlist.id}}" class="btn">Alterar</a>
+        </div>
+
+        <ul class="tracks">
+            {{#musicas}}
+            <li class="track">
+                <span class="eq eq--sm eq--idle" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                <div class="track__info">
+                    <span class="track__name">{{nome}}</span>
+                    <span class="track__time">{{duracao}}</span>
+                </div>
+            </li>
+            {{/musicas}}
+        </ul>
+
+        {{^musicas}}
+        <div class="empty">Esta playlist ainda não tem músicas.</div>
+        {{/musicas}}
+
+        <div class="form-actions">
+            <a href="/playlists/tela_listagem" class="btn">Voltar</a>
+        </div>
+    </div>
+</body>
+
+</html>
