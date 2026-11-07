@@ -752,3 +752,20 @@ a {
     .eq i:nth-child(odd)  { transform: scaleY(0.9); }
     .eq i:nth-child(even) { transform: scaleY(0.5); }
 }
+
+.json {
+    margin-top: 8px 0 0;
+    padding: 14px 16px;
+    overflow-x: auto;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.panel > .label {
+    margin-top: 18px;
+}

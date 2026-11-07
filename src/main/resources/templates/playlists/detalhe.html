@@ -36,6 +36,17 @@
             <a href="/playlists/tela_alterar/{{playlist.id}}" class="btn">Alterar</a>
         </div>
 
+        <div class="panel">
+            <p>{{playlist.descricao}}{{^playlist.descricao}}Sem descrição.{{/playlist.descricao}}</p>
+            <p class="page-sub">
+                {{#playlist.destaque}}<span class="badge badge--public">Destaque</span>{{/playlist.destaque}}
+                Clima: {{playlist.clima}}{{^playlist.clima}}não informado{{/playlist.clima}}
+                · Tags: {{playlist.tags}}{{^playlist.tags}}nenhuma{{/playlist.tags}}
+            </p>
+            <p class="label">Dados armazenados em JSONB</p>
+            <pre class="json">{{playlist.dadosJson}}</pre>
+        </div>
+
         <ul class="tracks">
             {{#musicas}}
             <li class="track">

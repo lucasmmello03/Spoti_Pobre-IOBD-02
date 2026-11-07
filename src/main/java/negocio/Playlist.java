@@ -9,6 +9,51 @@ public class Playlist {
     private LocalDateTime dataHoraCriacao;
     private boolean publica;
     private String donoNome;
+    private String descricao;
+    private String clima;
+    private String tags;
+    private boolean destaque;
+    private String dadosJson;
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public String getClima() {
+        return clima;
+    }
+
+    public void setClima(String clima) {
+        this.clima = clima;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public boolean isDestaque() {
+        return destaque;
+    }
+
+    public void setDestaque(boolean destaque) {
+        this.destaque = destaque;
+    }
+
+    public String getDadosJson() {
+        return dadosJson;
+    }
+
+    public void setDadosJson(String dadosJson) {
+        this.dadosJson = dadosJson;
+    }
 
     public String getDono_nome() {
         return donoNome;

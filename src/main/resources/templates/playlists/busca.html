@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Playlists - SpotiPobre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/app.css">
+    <style>
+        .search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 6px 6px 18px;
+            background: var(--surface-2);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .search:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .search__icon {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        .search__input {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 4px;
+            background: transparent;
+            border: 0;
+            outline: 0;
+            color: var(--text);
+            font: inherit;
+        }
+
+        .search__input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin: 14px 0 22px;
+        }
+
+        .filters__label {
+            margin-right: 2px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .filters__sep {
+            width: 1px;
+            height: 18px;
+            margin: 0 6px;
+            background: var(--line);
+        }
+
+        .chip {
+            padding: 6px 14px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: border-color 0.15s, color 0.15s, background 0.15s;
+        }
+
+        .chip:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .chip--on {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent-hover);
+        }
+
+        .filters__clear {
+            margin-left: auto;
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            text-decoration: underline;
+        }
+
+        .filters__clear:hover {
+            color: var(--text);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header class="topbar">
+            <a href="/" class="brand">
+                <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                SpotiPobre
+            </a>
+            <nav class="nav" aria-label="Menu principal">
+                <a href="/dashboard">Catálogo</a>
+                <a href="/playlists/tela_listagem" aria-current="page">Playlists</a>
+                <a href="/usuarios">Usuários</a>
+            </nav>
+        </header>
+
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">JSONB</p>
+                <h1 class="page-title">Buscar playlists</h1>
+                <p class="page-sub">{{total}} playlist(s) encontrada(s)</p>
+            </div>
+            <a href="/playlists/tela_listagem" class="btn">Voltar</a>
+        </div>
+
+        <form class="search" action="/playlists/busca" method="get" role="search">
+            <span class="search__icon" aria-hidden="true">⌕</span>
+            <input type="hidden" name="clima" value="{{clima}}">
+            {{#destaque}}<input type="hidden" name="destaque" value="on">{{/destaque}}
+            <input type="search" name="tag" class="search__input" value="{{tag}}" list="tags-existentes"
+                placeholder="Buscar por tag. Ex: samba, rock, foco" autocomplete="off">
+            <datalist id="tags-existentes">
+                {{#tagsDisponiveis}}
+                <option value="{{.}}"></option>
+                {{/tagsDisponiveis}}
+            </datalist>
+            <button type="submit" class="btn btn--primary btn--sm">Buscar</button>
+        </form>
+
+        <div class="filters">
+            <span class="filters__label">Clima</span>
+            {{#climas}}
+            <a href="{{url}}" class="chip {{#ativo}}chip--on{{/ativo}}">{{nome}}</a>
+            {{/climas}}
+
+            <span class="filters__sep" aria-hidden="true"></span>
+            <a href="{{destaqueUrl}}" class="chip {{#destaque}}chip--on{{/destaque}}">★ Destaque</a>
+
+            {{#temFiltro}}
+            <a href="/playlists/busca" class="filters__clear">Limpar filtros</a>
+            {{/temFiltro}}
+        </div>
+
+        <ul class="list">
+            {{#playlists}}
+            <li class="playlist">
+                <div class="cover" aria-hidden="true">♫</div>
+
+                <div class="playlist__info">
+                    <span class="playlist__name">{{nome}}</span>
+                    <div class="playlist__meta">
+                        {{#destaque}}<span class="badge badge--public">Destaque</span>{{/destaque}}
+                        <span>{{clima}}{{^clima}}sem clima{{/clima}} · Tags: {{tags}}{{^tags}}nenhuma{{/tags}}</span>
+                    </div>
+                </div>
+
+                <div class="playlist__actions">
+                    <a href="/playlists/detalhe/{{id}}" class="btn btn--sm">Ver</a>
+                </div>
+            </li>
+            {{/playlists}}
+        </ul>
+
+        {{^playlists}}
+        <div class="empty">Nenhuma playlist encontrada com esses filtros.</div>
+        {{/playlists}}
+    </div>
+</body>
+
+</html>

@@ -39,6 +39,34 @@
                     <input type="text" id="nome" name="nome" class="input" value="{{playlist.nome}}" required>
                 </div>
 
+                <div class="field">
+                    <label class="label" for="descricao">Descrição</label>
+                    <input type="text" id="descricao" name="descricao" class="input" value="{{playlist.descricao}}" placeholder="Ex: Seleção de clássicos brasileiros">
+                </div>
+
+                <div class="field">
+                    <label class="label" for="tags">Tags (separadas por vírgula)</label>
+                    <input type="text" id="tags" name="tags" class="input" value="{{playlist.tags}}" placeholder="mpb, brasil, classicos">
+                </div>
+
+                <div class="field">
+                    <label class="label" for="clima">Clima</label>
+                    <input type="text" id="clima" name="clima" class="input" value="{{playlist.clima}}" list="climas" placeholder="nostalgico">
+                    <datalist id="climas">
+                        <option value="nostalgico"></option>
+                        <option value="animado"></option>
+                        <option value="relaxante"></option>
+                        <option value="energetico"></option>
+                        <option value="focado"></option>
+                        <option value="romantico"></option>
+                    </datalist>
+                </div>
+
+                <label class="switch">
+                    <input type="checkbox" id="destaque" name="destaque" {{#playlist.destaque}}checked{{/playlist.destaque}}>
+                    <span>Playlist em destaque</span>
+                </label>
+
                 <label class="switch">
                     <input type="checkbox" id="publica" name="publica" value="true" {{#playlist.publica}}checked{{/playlist.publica}}>
                     <span>Tornar playlist pública</span>
