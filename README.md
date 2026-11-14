@@ -10,7 +10,8 @@ Evolução do sistema SpotiPobre (Interação Web / IOBD, IFRS). Aplicação web
 
 ## Como executar (2 comandos)
 
-Na raiz do projeto:
+Abra no terminal a pasta do projeto (a que contém `pom.xml` e `banco/`). A primeira execução do Maven baixa as dependências e exige internet.
+
 
 ```bash
 psql -h localhost -U postgres -f banco/spoti_pobre_dump.sql
