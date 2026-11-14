@@ -1,6 +1,8 @@
 package negocio;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Playlist {
 
@@ -37,6 +39,19 @@ public class Playlist {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public List<String> getTagsLista() {
+        List<String> lista = new ArrayList<>();
+        if (tags == null || tags.isBlank()) {
+            return lista;
+        }
+        for (String t : tags.split(",")) {
+            if (!t.isBlank()) {
+                lista.add(t.trim());
+            }
+        }
+        return lista;
     }
 
     public boolean isDestaque() {

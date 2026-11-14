@@ -754,7 +754,7 @@ a {
 }
 
 .json {
-    margin-top: 8px 0 0;
+    margin: 8px 0 0;
     padding: 14px 16px;
     overflow-x: auto;
     border-radius: var(--radius-sm);
@@ -768,4 +768,334 @@ a {
 
 .panel > .label {
     margin-top: 18px;
+}
+
+.capa {
+    flex: none;
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    background-color: var(--surface-3);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    object-fit: cover;
+}
+
+.capa--vazia {
+    display: grid;
+    place-items: center;
+    border: 1px dashed var(--line);
+    box-shadow: none;
+    color: var(--text-dim);
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.album__cover {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    box-shadow: 0 0 0 2px var(--line), 0 8px 18px rgba(0, 0, 0, 0.5);
+    object-fit: cover;
+}
+
+.playlist--capa {
+    flex-wrap: wrap;
+}
+
+.playlist--capa:hover {
+    transform: none;
+}
+
+.capa-actions {
+    flex-wrap: wrap;
+}
+
+.capa-form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+}
+
+.file {
+    max-width: 250px;
+    padding: 6px 8px;
+    background-color: var(--surface);
+    color: var(--text-dim);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font: 600 0.78rem var(--font);
+}
+
+.file::file-selector-button {
+    margin-right: 10px;
+    padding: 6px 12px;
+    background-color: var(--surface-3);
+    color: var(--text);
+    border: 0;
+    border-radius: 8px;
+    font: 700 0.75rem var(--font);
+    cursor: pointer;
+}
+
+.alert {
+    margin: 0 0 18px;
+    padding: 12px 16px;
+    background-color: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.alert--erro {
+    background-color: color-mix(in srgb, var(--danger) 14%, transparent);
+    border-color: var(--danger);
+}
+
+.dados__desc {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.dados__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.jsonb-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background-color: var(--accent-soft);
+    color: var(--accent-hover);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.editar {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+}
+
+.editar > summary,
+.ops > summary,
+.query > summary {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.editar > summary:hover,
+.ops > summary:hover,
+.query > summary:hover {
+    color: var(--text);
+}
+
+.editar > summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+}
+
+.editar[open] > summary {
+    margin-bottom: 16px;
+}
+
+.tabradio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tabs {
+    display: inline-flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    padding: 4px;
+    background-color: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+}
+
+.tabs label {
+    padding: 6px 16px;
+    border-radius: 999px;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#aba-campos:checked ~ .tabs label[for="aba-campos"],
+#aba-json:checked ~ .tabs label[for="aba-json"] {
+    background-color: var(--accent);
+    color: var(--accent-ink);
+}
+
+#aba-campos:focus-visible ~ .tabs label[for="aba-campos"],
+#aba-json:focus-visible ~ .tabs label[for="aba-json"] {
+    outline: 2px solid var(--accent-hover);
+    outline-offset: 2px;
+}
+
+.tabpanel {
+    display: none;
+}
+
+#aba-campos:checked ~ .tabpanel--campos,
+#aba-json:checked ~ .tabpanel--json {
+    display: block;
+}
+
+.linha {
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+}
+
+.linha:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.linha__nome {
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.linha__corpo {
+    min-width: 0;
+}
+
+.inline-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.inline-row .input {
+    padding: 9px 12px;
+    font-size: 0.9rem;
+}
+
+.tagchips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.tagchips:empty {
+    display: none;
+}
+
+.tagchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 4px 6px 4px 12px;
+    background-color: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.tagchip button {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    color: var(--text-dim);
+    font: 800 1rem/1 var(--font);
+    cursor: pointer;
+}
+
+.tagchip button:hover {
+    background-color: color-mix(in srgb, var(--danger) 20%, transparent);
+    color: var(--danger);
+}
+
+.json-editor {
+    width: 100%;
+    min-height: 260px;
+    padding: 14px 16px;
+    background-color: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font: 500 0.85rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    resize: vertical;
+    tab-size: 4;
+}
+
+.json-editor:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.json-editor--erro {
+    border-color: var(--danger);
+}
+
+.jsonb__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.ops {
+    margin-top: 18px;
+}
+
+.ops ul {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.7;
+}
+
+.ops code {
+    color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+}
+
+.query {
+    margin: 0 0 18px;
+}
+
+.query[open] > summary {
+    margin-bottom: 8px;
+}
+
+@media (max-width: 560px) {
+    .linha {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
 }

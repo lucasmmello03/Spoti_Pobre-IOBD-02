@@ -36,16 +36,99 @@
             <a href="/playlists/tela_alterar/{{playlist.id}}" class="btn">Alterar</a>
         </div>
 
-        <div class="panel">
-            <p>{{playlist.descricao}}{{^playlist.descricao}}Sem descrição.{{/playlist.descricao}}</p>
-            <p class="page-sub">
+        <section class="panel dados" id="jsonb">
+            <p class="dados__desc">{{playlist.descricao}}{{^playlist.descricao}}Sem descrição.{{/playlist.descricao}}</p>
+
+            <div class="dados__chips">
                 {{#playlist.destaque}}<span class="badge badge--public">Destaque</span>{{/playlist.destaque}}
-                Clima: {{playlist.clima}}{{^playlist.clima}}não informado{{/playlist.clima}}
-                · Tags: {{playlist.tags}}{{^playlist.tags}}nenhuma{{/playlist.tags}}
-            </p>
-            <p class="label">Dados armazenados em JSONB</p>
-            <pre class="json">{{playlist.dadosJson}}</pre>
-        </div>
+                {{#playlist.clima}}<span class="badge">{{playlist.clima}}</span>{{/playlist.clima}}
+                {{#playlist.tagsLista}}<span class="badge">#{{.}}</span>{{/playlist.tagsLista}}
+            </div>
+
+            <details class="editar" {{#mensagem}}open{{/mensagem}}{{#erroJson}}open{{/erroJson}}>
+                <summary><span class="jsonb-tag">JSONB</span> Editar dados da playlist</summary>
+
+                {{#mensagem}}
+                <div class="alert" role="status">{{mensagem}}</div>
+                {{/mensagem}}
+                {{#erroJson}}
+                <div class="alert alert--erro" role="alert">{{erroJson}}</div>
+                {{/erroJson}}
+
+                <input type="radio" name="aba" id="aba-campos" class="tabradio" {{^erroJson}}checked{{/erroJson}}>
+                <input type="radio" name="aba" id="aba-json" class="tabradio" {{#erroJson}}checked{{/erroJson}}>
+                <div class="tabs" role="presentation">
+                    <label for="aba-campos">Campos</label>
+                    <label for="aba-json">JSON completo</label>
+                </div>
+
+                <div class="tabpanel tabpanel--campos">
+                    <div class="linha">
+                        <span class="linha__nome">Destaque</span>
+                        <form action="/playlists/jsonb/destaque/{{playlistId}}" method="post" class="inline-row">
+                            <button type="submit" class="btn btn--sm {{#playlist.destaque}}btn--primary{{/playlist.destaque}}">
+                                {{#playlist.destaque}}★ Em destaque{{/playlist.destaque}}{{^playlist.destaque}}☆ Destacar{{/playlist.destaque}}
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="linha">
+                        <span class="linha__nome">Clima</span>
+                        <form action="/playlists/jsonb/clima/{{playlistId}}" method="post" class="inline-row">
+                            <input type="text" name="clima" class="input" value="{{playlist.clima}}" list="climas-detalhe"
+                                placeholder="nostalgico" aria-label="Clima da playlist" required>
+                            <datalist id="climas-detalhe">
+                                {{#climas}}
+                                <option value="{{.}}"></option>
+                                {{/climas}}
+                            </datalist>
+                            <button type="submit" class="btn btn--sm">Salvar</button>
+                        </form>
+                    </div>
+
+                    <div class="linha">
+                        <span class="linha__nome">Tags</span>
+                        <div class="linha__corpo">
+                            <div class="tagchips">
+                                {{#playlist.tagsLista}}
+                                <form action="/playlists/jsonb/tag/remover/{{playlistId}}" method="post" class="tagchip">
+                                    <input type="hidden" name="tag" value="{{.}}">
+                                    <span>{{.}}</span>
+                                    <button type="submit" aria-label="Remover a tag {{.}}" title="Remover tag">×</button>
+                                </form>
+                                {{/playlist.tagsLista}}
+                            </div>
+                            <form action="/playlists/jsonb/tag/{{playlistId}}" method="post" class="inline-row">
+                                <input type="text" name="tag" class="input" placeholder="nova tag" aria-label="Nova tag" autocomplete="off">
+                                <button type="submit" class="btn btn--sm">Adicionar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabpanel tabpanel--json">
+                    <form action="/playlists/jsonb/editar/{{playlistId}}" method="post">
+                        <textarea name="json" class="json-editor {{#erroJson}}json-editor--erro{{/erroJson}}" spellcheck="false"
+                            aria-label="JSON completo da playlist" required>{{jsonEditor}}</textarea>
+                        <div class="jsonb__actions">
+                            <button type="reset" class="btn btn--sm">Desfazer</button>
+                            <button type="submit" class="btn btn--primary btn--sm">Salvar JSON</button>
+                        </div>
+                    </form>
+                </div>
+
+                <details class="ops">
+                    <summary>Operadores JSONB usados</summary>
+                    <ul>
+                        <li><code>dados_extras->>'descricao'</code> lê um campo como texto</li>
+                        <li><code>jsonb_set(dados_extras, '{destaque}', ...)</code> troca destaque e clima</li>
+                        <li><code>tags || jsonb_build_array('tag')</code> adiciona uma tag</li>
+                        <li><code>jsonb_agg(...)</code> refaz a lista sem a tag removida</li>
+                        <li><code>UPDATE ... SET dados_extras = ?::jsonb</code> grava o JSON completo e recusa JSON inválido</li>
+                    </ul>
+                </details>
+            </details>
+        </section>
 
         <ul class="tracks">
             {{#musicas}}

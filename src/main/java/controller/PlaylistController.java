@@ -1,6 +1,7 @@
 package controller;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import negocio.Playlist;
 import persistencia.PlaylistDAO;
 import persistencia.UsuarioDAO;
@@ -20,6 +21,14 @@ public class PlaylistController {
         return s == null ? "" : s.trim();
     }
 
+    private int lerId(Context ctx) {
+        try {
+            return Integer.parseInt(ctx.pathParam("id"));
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
     private String montarUrlBusca(String tag, String clima, boolean destaque) {
         List<String> partes = new ArrayList<>();
         if (!tag.isEmpty()) {
@@ -32,6 +41,62 @@ public class PlaylistController {
             partes.add("destaque=on");
         }
         return "/playlists/busca" + (partes.isEmpty() ? "" : "?" + String.join("&", partes));
+    }
+
+    private String mensagemSucesso(String ok) {
+        if (ok == null) {
+            return null;
+        }
+        switch (ok) {
+            case "json":
+                return "JSON salvo.";
+            case "destaque":
+                return "Destaque alterado.";
+            case "clima":
+                return "Clima alterado.";
+            case "tag_add":
+                return "Tag adicionada.";
+            case "tag_rm":
+                return "Tag removida.";
+            default:
+                return null;
+        }
+    }
+
+    private String mensagemErroRapido(String erro) {
+        if (erro == null) {
+            return null;
+        }
+        switch (erro) {
+            case "tag_vazia":
+                return "Digite uma tag antes de adicionar.";
+            case "falha":
+                return "Não foi possível alterar o JSON da playlist.";
+            default:
+                return null;
+        }
+    }
+
+    // Monta a tela de detalhe; usada tambem para reexibir o editor com o JSON digitado quando ele e invalido.
+    private void renderizarDetalhe(Context ctx, int id, String jsonEditado, String erroJson) {
+        Playlist playlist = playlistDAO.buscarPorId(id);
+
+        if (playlist == null) {
+            ctx.redirect("/playlists/tela_listagem");
+            return;
+        }
+
+        String erroRapido = mensagemErroRapido(ctx.queryParam("erro"));
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("playlist", playlist);
+        map.put("playlistId", id);
+        map.put("musicas", playlistDAO.listarMusicas(id));
+        map.put("climas", playlistDAO.listarClimas());
+        map.put("jsonEditor", jsonEditado != null ? jsonEditado : playlist.getDadosJson());
+        map.put("erroJson", erroJson != null ? erroJson : erroRapido);
+        map.put("mensagem", mensagemSucesso(ctx.queryParam("ok")));
+        ctx.render("/templates/playlists/detalhe.html", map);
     }
 
     public PlaylistController(Javalin app) {
@@ -69,30 +134,83 @@ public class PlaylistController {
             map.put("climas", climas);
             map.put("destaqueUrl", montarUrlBusca(tag, clima, !destaque));
             map.put("temFiltro", !tag.isEmpty() || !clima.isEmpty() || destaque);
+            map.put("condicaoJsonb", playlistDAO.descreverBusca(tag, clima, destaque));
             ctx.render("/templates/playlists/busca.html", map);
         });
 
         app.get("/playlists/detalhe/{id}", ctx -> {
-            int id;
-            try {
-                id = Integer.parseInt(ctx.pathParam("id"));
-            } catch (NumberFormatException e) {
+            int id = lerId(ctx);
+            if (id < 0) {
                 ctx.redirect("/playlists/tela_listagem");
                 return;
             }
-
-            Playlist playlist = playlistDAO.buscarPorId(id);
-
-            if (playlist == null) {
-                ctx.redirect("/playlists/tela_listagem");
-                return;
-            }
-
-            Map<String, Object> map = new HashMap<>();
-            map.put("playlist", playlist);
-            map.put("musicas", playlistDAO.listarMusicas(id));
-            ctx.render("/templates/playlists/detalhe.html", map);
+            renderizarDetalhe(ctx, id, null, null);
         });
+
+        // ---- Edicao direta do JSONB (tela de detalhe) ----
+
+        app.post("/playlists/jsonb/destaque/{id}", ctx -> {
+            int id = lerId(ctx);
+            if (id < 0) {
+                ctx.redirect("/playlists/tela_listagem");
+                return;
+            }
+            boolean ok = playlistDAO.alternarDestaque(id);
+            ctx.redirect("/playlists/detalhe/" + id + (ok ? "?ok=destaque" : "?erro=falha") + "#jsonb");
+        });
+
+        app.post("/playlists/jsonb/clima/{id}", ctx -> {
+            int id = lerId(ctx);
+            if (id < 0) {
+                ctx.redirect("/playlists/tela_listagem");
+                return;
+            }
+            boolean ok = playlistDAO.definirClima(id, ctx.formParam("clima"));
+            ctx.redirect("/playlists/detalhe/" + id + (ok ? "?ok=clima" : "?erro=falha") + "#jsonb");
+        });
+
+        app.post("/playlists/jsonb/tag/{id}", ctx -> {
+            int id = lerId(ctx);
+            if (id < 0) {
+                ctx.redirect("/playlists/tela_listagem");
+                return;
+            }
+            String tag = limpar(ctx.formParam("tag"));
+            if (tag.isEmpty()) {
+                ctx.redirect("/playlists/detalhe/" + id + "?erro=tag_vazia#jsonb");
+                return;
+            }
+            boolean ok = playlistDAO.adicionarTag(id, tag);
+            ctx.redirect("/playlists/detalhe/" + id + (ok ? "?ok=tag_add" : "?erro=falha") + "#jsonb");
+        });
+
+        app.post("/playlists/jsonb/tag/remover/{id}", ctx -> {
+            int id = lerId(ctx);
+            if (id < 0) {
+                ctx.redirect("/playlists/tela_listagem");
+                return;
+            }
+            boolean ok = playlistDAO.removerTag(id, ctx.formParam("tag"));
+            ctx.redirect("/playlists/detalhe/" + id + (ok ? "?ok=tag_rm" : "?erro=falha") + "#jsonb");
+        });
+
+        app.post("/playlists/jsonb/editar/{id}", ctx -> {
+            int id = lerId(ctx);
+            if (id < 0) {
+                ctx.redirect("/playlists/tela_listagem");
+                return;
+            }
+            String json = ctx.formParam("json");
+            String erro = playlistDAO.salvarJsonBruto(id, json);
+
+            if (erro == null) {
+                ctx.redirect("/playlists/detalhe/" + id + "?ok=json#jsonb");
+            } else {
+                renderizarDetalhe(ctx, id, json, erro);
+            }
+        });
+
+        // ---- CRUD da playlist ----
 
         app.get("/playlists/nova", ctx -> {
             Map<String, Object> map = new HashMap<>();

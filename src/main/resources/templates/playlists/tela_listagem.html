@@ -44,7 +44,9 @@
                     <div class="playlist__meta">
                         {{#publica}}<span class="badge badge--public">Pública</span>{{/publica}}
                         {{^publica}}<span class="badge">Privada</span>{{/publica}}
-                        <span>Criada por: {{dono_nome}}</span>
+                        {{#destaque}}<span class="badge badge--public">Destaque</span>{{/destaque}}
+                        {{#clima}}<span class="badge">{{clima}}</span>{{/clima}}
+                        <span>Criada por: {{dono_nome}}{{^dono_nome}}sem dono{{/dono_nome}}</span>
                     </div>
                 </div>
 

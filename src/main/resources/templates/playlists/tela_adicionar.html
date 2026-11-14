@@ -80,6 +80,11 @@
                     <span>Playlist pública</span>
                 </label>
 
+                <details class="query">
+                    <summary>Pré-visualizar o JSONB que será gravado</summary>
+                    <pre class="json" id="json-preview"></pre>
+                </details>
+
                 <div class="form-actions">
                     <a href="/playlists/tela_listagem" class="btn">Voltar</a>
                     <button type="submit" class="btn btn--primary">Criar Playlist</button>
@@ -87,6 +92,32 @@
             </form>
         </div>
     </div>
+
+    <script>
+        (function () {
+            var campos = ['descricao', 'tags', 'clima'];
+
+            function montar() {
+                var tags = document.getElementById('tags').value.split(',')
+                    .map(function (t) { return t.trim().toLowerCase(); })
+                    .filter(function (t) { return t !== ''; });
+
+                var obj = {
+                    descricao: document.getElementById('descricao').value.trim(),
+                    tags: tags,
+                    clima: document.getElementById('clima').value.trim().toLowerCase(),
+                    destaque: document.getElementById('destaque').checked
+                };
+                document.getElementById('json-preview').textContent = JSON.stringify(obj, null, 4);
+            }
+
+            campos.forEach(function (id) {
+                document.getElementById(id).addEventListener('input', montar);
+            });
+            document.getElementById('destaque').addEventListener('change', montar);
+            montar();
+        })();
+    </script>
 </body>
 
 </html>
