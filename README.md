@@ -8,21 +8,20 @@ Evolução do sistema SpotiPobre (Interação Web / IOBD, IFRS). Aplicação web
 - Maven 3.9 ou superior
 - PostgreSQL 16 (o usuário `postgres` precisa poder criar bancos e papéis)
 
-## 1. Preparar o banco de dados
+## Como executar (2 comandos)
 
-Execute na raiz do projeto, na ordem abaixo. O `psql` pede a senha do usuário `postgres`.
+Na raiz do projeto:
 
 ```bash
-psql -h localhost -U postgres -f sql/00_base_professor.sql
-psql -h localhost -U postgres -d spoti_pobre -v ON_ERROR_STOP=1 -f sql/trabalho2.sql
+psql -h localhost -U postgres -f banco/spoti_pobre_dump.sql
+mvn compile exec:java
 ```
 
-- `sql/00_base_professor.sql` é o script base fornecido na disciplina. Ele apaga e recria o banco `spoti_pobre`. Ao final ele mostra **4 erros de chave estrangeira**, que já existem no script original (inserções de playlist e de usuário premium fora de ordem) e não afetam o resto.
-- `sql/trabalho2.sql` contém tudo o que foi acrescentado neste trabalho: alterações de estrutura, dados de teste e os comandos de controle de acesso (DCL). Ele pode ser executado mais de uma vez.
+Depois, abra <http://localhost:7000>.
 
-## 2. Configurar a conexão JDBC
+O primeiro comando pede a senha do usuário `postgres`. Ele apaga e recria o banco `spoti_pobre` e cria os papéis `spoti_admin` e `spoti_consulta`. Pode ser executado mais de uma vez. O arquivo `banco/spoti_pobre_dump.sql` contém tudo: estrutura, dados de teste e controle de acesso (DCL).
 
-A conexão é lida de variáveis de ambiente. Se nenhuma for definida, valem os valores padrão (credenciais de teste):
+A aplicação conecta no banco `spoti_pobre` em `localhost:5432` como `spoti_admin` (senha de teste `senha_admin_teste`). Esses são os valores padrão, então não é preciso configurar nada. Se o PostgreSQL estiver em outra porta ou outro usuário for desejado, defina antes de iniciar:
 
 | Variável | Padrão |
 |---|---|
@@ -32,22 +31,9 @@ A conexão é lida de variáveis de ambiente. Se nenhuma for definida, valem os 
 | `SPOTI_DB_USER` | `spoti_admin` |
 | `SPOTI_DB_PASSWORD` | `senha_admin_teste` |
 
-O usuário `spoti_admin` é criado pelo `trabalho2.sql`. Para usar outro usuário, defina as variáveis antes de iniciar a aplicação, por exemplo:
+Também é possível executar a classe `apresentacao.Main` pela IDE.
 
-```bash
-export SPOTI_DB_USER=postgres
-export SPOTI_DB_PASSWORD=sua_senha
-```
-
-## 3. Executar a aplicação
-
-```bash
-mvn compile exec:java
-```
-
-Também é possível executar a classe `apresentacao.Main` pela IDE. A aplicação sobe na porta **7000**: <http://localhost:7000>
-
-## 4. Roteiro de verificação por requisito
+## Roteiro de verificação por requisito
 
 ### Requisito 1: JSONB
 
@@ -65,11 +51,9 @@ Coluna `playlist.dados_extras` (JSONB) com índice GIN. Exemplo de conteúdo:
 | Consultar e exibir o JSONB | `/playlists/detalhe/4` e `/playlists/tela_listagem` |
 | Busca com operadores JSON (`@>` por tag, `->>` por clima e destaque) | `/playlists/busca`, que mostra a condição JSONB aplicada |
 
-Teste automatizado do banco: `sql/testes_jsonb.sql`.
-
 ### Requisito 2: BYTEA
 
-Coluna `album.capa` (BYTEA) mais `album.capa_tipo` e uma regra de integridade que exige o tipo da imagem junto com os bytes. O script grava 4 capas de teste.
+Coluna `album.capa` (BYTEA) mais `album.capa_tipo` e uma regra de integridade que exige o tipo da imagem junto com os bytes. O banco já traz 4 capas de teste.
 
 | Operação | Onde |
 |---|---|
@@ -79,11 +63,9 @@ Coluna `album.capa` (BYTEA) mais `album.capa_tipo` e uma regra de integridade qu
 
 O upload aceita PNG, JPEG, GIF e WEBP de até 2 MB e confere os primeiros bytes do arquivo. A gravação usa `PreparedStatement.setBytes` e a leitura usa `getBytes` (`AlbumDAO`).
 
-Teste automatizado do banco: `sql/testes_bytea.sql`.
-
 ### Requisito 3: Herança de tabelas
 
-Tabela `album_coletanea` herda de `album` (`INHERITS`) e acrescenta `tema` e `ano_referencia`. Em Java, `AlbumColetanea extends Album`. Particularidades tratadas em `trabalho2.sql`:
+Tabela `album_coletanea` herda de `album` (`INHERITS`) e acrescenta `tema` e `ano_referencia`. Em Java, `AlbumColetanea extends Album`. Particularidades tratadas:
 
 - `PRIMARY KEY` e `FOREIGN KEY` não são herdadas e foram refeitas na filha; `NOT NULL` e `CHECK` são herdados.
 - A chave estrangeira de `album_musica` não enxerga linhas da tabela filha. Por isso as músicas das coletâneas ficam em `coletanea_musica`, que referencia `album_coletanea`.
@@ -94,8 +76,6 @@ Tabela `album_coletanea` herda de `album` (`INHERITS`) e acrescenta `tema` e `an
 | Cadastrar coletânea | `/coletaneas/nova` |
 | Consultar coletâneas (filtro por tema e ano) | `/coletaneas`, aba **Coletâneas** |
 | Ver a diferença entre consultar o pai e só o pai | `/coletaneas`, abas **Tabela pai e filhas** (`FROM album`) e **Só a tabela pai** (`FROM ONLY album`) |
-
-Teste automatizado do banco: `sql/testes_heranca.sql`.
 
 ### Requisito 4: Aplicação web
 
@@ -113,22 +93,16 @@ Os demais requisitos estão integrados à mesma aplicação (telas acima). O cat
 
 ### Requisito 5: DCL
 
-Definido no final de `sql/trabalho2.sql`:
+Definido no próprio `banco/spoti_pobre_dump.sql` (comandos `GRANT` e `REVOKE` ao final do arquivo):
 
 | Papel | Permissões |
 |---|---|
 | `spoti_admin` (usado pela aplicação) | `SELECT`, `INSERT`, `UPDATE`, `DELETE` em todas as tabelas do sistema, incluindo as tabelas filhas, e uso das sequences. Não é dono das tabelas, então não pode apagá-las. |
-| `spoti_consulta` (somente leitura) | `SELECT` nas tabelas. Em `usuario` e `usuario_premium` enxerga apenas as colunas sem a senha. `REVOKE` de `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE` e das sequences. Não acessa o schema `backup`. |
+| `spoti_consulta` (somente leitura) | `SELECT` nas tabelas. Em `usuario` e `usuario_premium` enxerga apenas as colunas sem a senha. Sem `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE` e sem acesso às sequences. Não acessa o schema `backup`. |
 
 Também há `REVOKE ALL ON DATABASE ... FROM PUBLIC`, para que só os dois papéis consigam conectar (além do superusuário).
 
-**Teste automatizado** (16 verificações, com erros `insufficient_privilege` esperados nas escritas):
-
-```bash
-psql -h localhost -U postgres -d spoti_pobre -f sql/testes_dcl.sql
-```
-
-**Teste manual com login real** como usuário somente leitura (senha `senha_consulta_teste`):
+**Teste com o usuário somente leitura** (senha `senha_consulta_teste`):
 
 ```bash
 psql -h localhost -U spoti_consulta -d spoti_pobre
@@ -143,19 +117,18 @@ UPDATE album SET titulo = 'x';              -- ERROR: permission denied for tabl
 DELETE FROM album_coletanea;                -- ERROR: permission denied for table album_coletanea
 ```
 
-## 5. Testes do banco
-
-Todos os scripts abaixo rodam dentro de uma transação que termina em `ROLLBACK`, então não alteram os dados. Cada um termina com a contagem de falhas, que deve ser 0.
+**Teste com o usuário da aplicação** (senha `senha_admin_teste`):
 
 ```bash
-psql -h localhost -U postgres -d spoti_pobre -f sql/testes_banco.sql      # estrutura geral: 15 verificações
-psql -h localhost -U postgres -d spoti_pobre -f sql/testes_jsonb.sql      # JSONB: 14
-psql -h localhost -U postgres -d spoti_pobre -f sql/testes_bytea.sql      # BYTEA: 10
-psql -h localhost -U postgres -d spoti_pobre -f sql/testes_heranca.sql    # herança: 15
-psql -h localhost -U postgres -d spoti_pobre -f sql/testes_dcl.sql        # DCL: 16
+psql -h localhost -U spoti_admin -d spoti_pobre
 ```
 
-## 6. Credenciais de teste
+```sql
+SELECT count(*) FROM playlist;   -- funciona
+DROP TABLE album_musica;         -- ERROR: must be owner of table album_musica
+```
+
+## Credenciais de teste
 
 Apenas para uso local. Não há senhas reais no projeto.
 
@@ -164,16 +137,16 @@ Apenas para uso local. Não há senhas reais no projeto.
 | `spoti_admin` | `senha_admin_teste` |
 | `spoti_consulta` | `senha_consulta_teste` |
 
-## 7. Estrutura do projeto
+## Estrutura do projeto
 
 ```
-sql/                      scripts SQL: base do professor, trabalho2.sql e testes
+banco/spoti_pobre_dump.sql   banco completo: estrutura, dados de teste e DCL
 src/main/java/
-  apresentacao/Main.java  inicia o Javalin (porta 7000) e registra as rotas
-  controller/             rotas HTTP, sem SQL
-  negocio/                classes de domínio (Album, AlbumColetanea, Playlist, ...)
-  persistencia/           DAOs e conexão JDBC (todo o SQL)
+  apresentacao/Main.java     inicia o Javalin (porta 7000) e registra as rotas
+  controller/                rotas HTTP, sem SQL
+  negocio/                   classes de domínio (Album, AlbumColetanea, Playlist, ...)
+  persistencia/              DAOs e conexão JDBC (todo o SQL)
 src/main/resources/
-  public/app.css          estilos
-  templates/              páginas Mustache
+  public/app.css             estilos
+  templates/                 páginas Mustache
 ```
