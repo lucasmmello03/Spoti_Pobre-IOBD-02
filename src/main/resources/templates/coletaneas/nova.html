@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Coletânea - SpotiPobre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/app.css">
+</head>
+
+<body>
+    <div class="page page--narrow">
+        <header class="topbar">
+            <a href="/" class="brand">
+                <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                SpotiPobre
+            </a>
+            <nav class="nav" aria-label="Menu principal">
+                <a href="/dashboard" aria-current="page">Catálogo</a>
+                <a href="/playlists/tela_listagem">Playlists</a>
+                <a href="/usuarios">Usuários</a>
+            </nav>
+        </header>
+
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Herança de tabelas</p>
+                <h1 class="page-title">Nova coletânea</h1>
+            </div>
+        </div>
+
+        {{#mensagemErro}}
+        <div class="alert alert--erro" role="alert">{{mensagemErro}}</div>
+        {{/mensagemErro}}
+
+        <div class="panel">
+            <form action="/coletaneas/nova" method="post">
+                <div class="field">
+                    <label class="label" for="titulo">Título</label>
+                    <input type="text" id="titulo" name="titulo" class="input" placeholder="Ex: Os Melhores do Samba" required>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="tema">Tema</label>
+                    <input type="text" id="tema" name="tema" class="input" placeholder="Ex: Samba de roda" required>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="ano_referencia">Ano de referência</label>
+                    <input type="number" id="ano_referencia" name="ano_referencia" class="input" min="1900" max="2100"
+                        placeholder="Ex: 2018" required>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="data_lancamento">Data de lançamento</label>
+                    <input type="date" id="data_lancamento" name="data_lancamento" class="input">
+                </div>
+
+                <div class="field">
+                    <label class="label" for="genero_id">Gênero</label>
+                    <select id="genero_id" name="genero_id" class="select">
+                        <option value="">Sem gênero</option>
+                        {{#generos}}
+                        <option value="{{id}}">{{nome}}</option>
+                        {{/generos}}
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/coletaneas" class="btn">Cancelar</a>
+                    <button type="submit" class="btn btn--primary">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

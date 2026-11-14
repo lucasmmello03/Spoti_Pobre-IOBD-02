@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coletâneas - SpotiPobre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/app.css">
+</head>
+
+<body>
+    <div class="page">
+        <header class="topbar">
+            <a href="/" class="brand">
+                <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                SpotiPobre
+            </a>
+            <nav class="nav" aria-label="Menu principal">
+                <a href="/dashboard" aria-current="page">Catálogo</a>
+                <a href="/playlists/tela_listagem">Playlists</a>
+                <a href="/usuarios">Usuários</a>
+            </nav>
+        </header>
+
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Herança de tabelas</p>
+                <h1 class="page-title">Coletâneas</h1>
+                <p class="page-sub">Tabela <code>album_coletanea</code> herda de <code>album</code></p>
+            </div>
+            <div class="playlist__actions">
+                <a href="/dashboard" class="btn">Voltar</a>
+                <a href="/coletaneas/nova" class="btn btn--primary">+ Nova coletânea</a>
+            </div>
+        </div>
+
+        {{#mensagem}}
+        <div class="alert" role="status">{{mensagem}}</div>
+        {{/mensagem}}
+
+        <nav class="vtabs" aria-label="Consultas da herança">
+            <a href="/coletaneas" {{#visaoColetaneas}}aria-current="page"{{/visaoColetaneas}}>
+                Coletâneas <span class="vtabs__n">{{totalColetaneas}}</span>
+            </a>
+            <a href="/coletaneas?visao=todos" {{#visaoTodos}}aria-current="page"{{/visaoTodos}}>
+                Tabela pai e filhas <span class="vtabs__n">{{totalComFilhas}}</span>
+            </a>
+            <a href="/coletaneas?visao=only" {{#visaoOnly}}aria-current="page"{{/visaoOnly}}>
+                Só a tabela pai <span class="vtabs__n">{{totalSomenteAlbuns}}</span>
+            </a>
+        </nav>
+
+        {{#visaoColetaneas}}
+        <pre class="json">SELECT ... FROM album_coletanea</pre>
+
+        <form action="/coletaneas" method="get" class="filtro">
+            <input type="text" name="tema" class="input" value="{{tema}}" placeholder="Tema" aria-label="Filtrar por tema">
+            <input type="number" name="ano" class="input" value="{{ano}}" placeholder="Ano" min="1900" max="2100" aria-label="Filtrar por ano de referência">
+            <button type="submit" class="btn btn--primary btn--sm">Filtrar</button>
+            <a href="/coletaneas" class="btn btn--sm">Limpar</a>
+        </form>
+
+        <ul class="list">
+            {{#coletaneas}}
+            <li class="playlist">
+                <div class="cover" aria-hidden="true">♫</div>
+                <div class="playlist__info">
+                    <span class="playlist__name">{{titulo}}</span>
+                    <div class="playlist__meta">
+                        <span class="badge badge--public">{{tema}}</span>
+                        <span>Ref. {{anoReferencia}}</span>
+                        <span>{{generoNome}}{{^generoNome}}sem gênero{{/generoNome}}</span>
+                        <span>{{totalMusicas}} música(s)</span>
+                    </div>
+                </div>
+            </li>
+            {{/coletaneas}}
+        </ul>
+
+        {{^coletaneas}}
+        <div class="empty">Nenhuma coletânea encontrada.</div>
+        {{/coletaneas}}
+        {{/visaoColetaneas}}
+
+        {{#visaoTodos}}
+        <pre class="json">SELECT ..., tableoid::regclass FROM album
+-- inclui as linhas de album_coletanea</pre>
+        {{/visaoTodos}}
+        {{#visaoOnly}}
+        <pre class="json">SELECT ..., tableoid::regclass FROM ONLY album
+-- exclui as linhas de album_coletanea</pre>
+        {{/visaoOnly}}
+
+        <ul class="list">
+            {{#albuns}}
+            <li class="playlist">
+                <div class="cover" aria-hidden="true">♫</div>
+                <div class="playlist__info">
+                    <span class="playlist__name">{{titulo}}</span>
+                    <div class="playlist__meta">
+                        <span class="badge {{#deColetanea}}badge--public{{/deColetanea}}">{{origem}}</span>
+                    </div>
+                </div>
+            </li>
+            {{/albuns}}
+        </ul>
+    </div>
+</body>
+
+</html>

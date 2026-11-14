@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capas dos Álbuns - SpotiPobre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/app.css">
+</head>
+
+<body>
+    <div class="page">
+        <header class="topbar">
+            <a href="/" class="brand">
+                <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                SpotiPobre
+            </a>
+            <nav class="nav" aria-label="Menu principal">
+                <a href="/dashboard" aria-current="page">Catálogo</a>
+                <a href="/playlists/tela_listagem">Playlists</a>
+                <a href="/usuarios">Usuários</a>
+            </nav>
+        </header>
+
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">BYTEA</p>
+                <h1 class="page-title">Capas dos álbuns</h1>
+                <p class="page-sub">Envie, troque ou remova a capa. Formatos: PNG, JPEG, GIF ou WEBP, até 2 MB.</p>
+            </div>
+            <a href="/dashboard" class="btn">Voltar</a>
+        </div>
+
+        {{#mensagem}}
+        <div class="alert" role="status">{{mensagem}}</div>
+        {{/mensagem}}
+        {{#mensagemErro}}
+        <div class="alert alert--erro" role="alert">{{mensagemErro}}</div>
+        {{/mensagemErro}}
+
+        <ul class="list">
+            {{#albuns}}
+            <li class="playlist playlist--capa" id="album-{{id}}">
+                {{#temCapa}}<img class="capa" src="/albuns/capa/{{id}}" alt="Capa do álbum {{titulo}}">{{/temCapa}}
+                {{^temCapa}}<div class="capa capa--vazia" aria-hidden="true">♫</div>{{/temCapa}}
+
+                <div class="playlist__info">
+                    <span class="playlist__name">{{titulo}}</span>
+                    <div class="playlist__meta">
+                        {{#temCapa}}<span class="badge badge--public">Com capa</span><span>{{capaTamanhoFormatado}}</span>{{/temCapa}}
+                        {{^temCapa}}<span class="badge">Sem capa</span>{{/temCapa}}
+                    </div>
+                </div>
+
+                <div class="playlist__actions capa-actions">
+                    <form action="/albuns/capa/{{id}}" method="post" enctype="multipart/form-data" class="capa-form">
+                        <input type="file" name="capa" class="file" accept="image/png,image/jpeg,image/gif,image/webp" required
+                            aria-label="Arquivo da capa de {{titulo}}">
+                        <button type="submit" class="btn btn--primary btn--sm">{{#temCapa}}Trocar{{/temCapa}}{{^temCapa}}Enviar{{/temCapa}}</button>
+                    </form>
+
+                    {{#temCapa}}
+                    <form action="/albuns/capa/excluir/{{id}}" method="post" class="inline-form"
+                        onsubmit="return confirm('Remover a capa deste álbum? O álbum será mantido.');">
+                        <button type="submit" class="btn btn--danger btn--sm">Remover</button>
+                    </form>
+                    {{/temCapa}}
+                </div>
+            </li>
+            {{/albuns}}
+        </ul>
+
+        {{^albuns}}
+        <div class="empty">Nenhum álbum cadastrado.</div>
+        {{/albuns}}
+    </div>
+</body>
+
+</html>

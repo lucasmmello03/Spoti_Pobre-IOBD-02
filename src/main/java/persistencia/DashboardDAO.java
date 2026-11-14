@@ -17,7 +17,7 @@ public class DashboardDAO {
     public List<Album> listarCatalogo() {
         Map<Integer, Album> mapaAlbuns = new LinkedHashMap<>();
 
-        String sql = "SELECT a.id AS album_id, a.titulo, a.data_lancamento, " +
+        String sql = "SELECT a.id AS album_id, a.titulo, a.data_lancamento, a.capa IS NOT NULL AS tem_capa, " +
                      "m.id AS musica_id, m.nome, m.duracao " +
                      "FROM album a " +
                      "JOIN album_musica am ON a.id = am.album_id " +
@@ -35,6 +35,7 @@ public class DashboardDAO {
                     Album album = new Album();
                     album.setId(albumId);
                     album.setTitulo(rs.getString("titulo"));
+                    album.setTemCapa(rs.getBoolean("tem_capa"));
                     
                     if (rs.getDate("data_lancamento") != null) {
                         album.setData_lancamento(rs.getDate("data_lancamento").toLocalDate());

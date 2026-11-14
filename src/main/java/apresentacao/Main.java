@@ -2,6 +2,8 @@ package apresentacao;
 
 import java.sql.SQLException;
 
+import controller.AlbumController;
+import controller.ColetaneaController;
 import controller.DashboardController;
 import controller.PlaylistController;
 import controller.UsuarioController;
@@ -16,7 +18,7 @@ public class Main {
         Javalin app = Javalin.create(config -> {
             config.fileRenderer(new JavalinMustache());
             config.staticFiles.add("/public", Location.CLASSPATH);
-        }).start(7070);
+        }).start(7000);
 
         app.exception(Exception.class, (e, ctx) -> {
             System.out.println("Erro não tratado em " + ctx.method() + " " + ctx.path() + ": " + e);
@@ -37,6 +39,12 @@ public class Main {
 
         //Rota de dashboard
         new DashboardController(app);
+
+        //Rotas de capas de album (BYTEA)
+        new AlbumController(app);
+
+        //Rotas de coletaneas (heranca de tabelas)
+        new ColetaneaController(app);
 
     }
 }

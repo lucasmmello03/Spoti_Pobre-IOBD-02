@@ -1099,3 +1099,58 @@ a {
         gap: 8px;
     }
 }
+
+.vtabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 16px;
+}
+
+.vtabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.vtabs a:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.vtabs a[aria-current="page"] {
+    background-color: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+
+.vtabs__n {
+    padding: 0 8px;
+    border-radius: 999px;
+    background-color: var(--surface-3);
+    color: var(--text);
+    font-size: 0.75rem;
+}
+
+.filtro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+}
+
+.filtro .input {
+    width: auto;
+    flex: 1 1 140px;
+    padding: 9px 12px;
+    font-size: 0.9rem;
+}

@@ -17,7 +17,6 @@ public class PlaylistDAO {
             "'tags', to_jsonb(ARRAY(SELECT lower(btrim(t)) FROM unnest(string_to_array(?::text, ',')) AS t WHERE btrim(t) <> '')), " +
             "'clima', ?::text, 'destaque', ?::boolean)";
 
-    // Lista de tags do JSON; se o campo nao for uma lista, trata como vazia.
     private static final String TAGS_ATUAIS =
             "(CASE WHEN jsonb_typeof(dados_extras->'tags') = 'array' THEN dados_extras->'tags' ELSE '[]'::jsonb END)";
 
@@ -204,7 +203,6 @@ public class PlaylistDAO {
         return playlists;
     }
 
-    // Texto exibido na tela de busca para mostrar qual condicao JSONB esta sendo aplicada.
     public String descreverBusca(String tag, String clima, boolean apenasDestaque) {
         List<String> condicoes = new ArrayList<>();
 
@@ -282,9 +280,6 @@ public class PlaylistDAO {
         }
     }
 
-    // ---- Edicao direta do JSONB pela tela de detalhe ----
-
-    // jsonb_set troca apenas a chave 'destaque', sem mexer nas demais.
     public boolean alternarDestaque(int id) {
         String sql = "UPDATE playlist SET dados_extras = jsonb_set(dados_extras, '{destaque}', " +
                 "to_jsonb(NOT COALESCE(CASE WHEN jsonb_typeof(dados_extras->'destaque') = 'boolean' " +
@@ -292,14 +287,12 @@ public class PlaylistDAO {
         return executarAtualizacao(sql, null, id, "alternar destaque");
     }
 
-    // jsonb_set troca apenas a chave 'clima'.
     public boolean definirClima(int id, String clima) {
         String sql = "UPDATE playlist SET dados_extras = jsonb_set(dados_extras, '{clima}', to_jsonb(?::text), true) " +
                 "WHERE id = ?;";
         return executarAtualizacao(sql, limpar(clima).toLowerCase(), id, "definir clima");
     }
 
-    // Acrescenta a tag na lista (com ||) se ela ainda nao existir (teste com @>).
     public boolean adicionarTag(int id, String tag) {
         String nova = limpar(tag).toLowerCase();
         if (nova.isEmpty()) {
@@ -323,7 +316,6 @@ public class PlaylistDAO {
         }
     }
 
-    // Reconstroi a lista de tags sem o valor removido (jsonb_array_elements + jsonb_agg).
     public boolean removerTag(int id, String tag) {
         String sql = "UPDATE playlist SET dados_extras = jsonb_set(dados_extras, '{tags}', " +
                 "COALESCE((SELECT jsonb_agg(t) FROM jsonb_array_elements(" + TAGS_ATUAIS + ") AS t " +
@@ -331,7 +323,6 @@ public class PlaylistDAO {
         return executarAtualizacao(sql, limpar(tag).toLowerCase(), id, "remover tag");
     }
 
-    // Substitui o JSON inteiro. Retorna null se salvou, ou a mensagem de erro para mostrar na tela.
     public String salvarJsonBruto(int id, String json) {
         String sqlValidar = "SELECT CASE " +
                 "WHEN jsonb_typeof(j) <> 'object' THEN 'O JSON precisa ser um objeto, entre chaves { }.' " +

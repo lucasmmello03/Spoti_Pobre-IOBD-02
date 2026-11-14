@@ -3,12 +3,16 @@ package negocio;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Album {
     private int id;
     private String titulo;
     private LocalDate data_lancamento;
     private int genero_id;
+    private boolean temCapa;
+    private long capaTamanho;
+    private String origem;
     private List<Musica> musicas = new ArrayList<>();
 
     public int getId() {
@@ -41,6 +45,41 @@ public class Album {
 
     public void setGenero_id(int genero_id) {
         this.genero_id = genero_id;
+    }
+
+    public boolean isTemCapa() {
+        return temCapa;
+    }
+
+    public void setTemCapa(boolean temCapa) {
+        this.temCapa = temCapa;
+    }
+
+    public long getCapaTamanho() {
+        return capaTamanho;
+    }
+
+    public void setCapaTamanho(long capaTamanho) {
+        this.capaTamanho = capaTamanho;
+    }
+
+    public String getCapaTamanhoFormatado() {
+        if (capaTamanho < 1024) {
+            return capaTamanho + " B";
+        }
+        return String.format(Locale.of("pt", "BR"), "%.1f KB", capaTamanho / 1024.0);
+    }
+
+    public String getOrigem() {
+        return origem;
+    }
+
+    public void setOrigem(String origem) {
+        this.origem = origem;
+    }
+
+    public boolean isDeColetanea() {
+        return "album_coletanea".equals(origem);
     }
 
     public List<Musica> getMusicas() {

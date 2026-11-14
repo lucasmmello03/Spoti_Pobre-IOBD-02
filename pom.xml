@@ -49,4 +49,18 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Permite iniciar a aplicacao com: mvn compile exec:java -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>apresentacao.Main</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

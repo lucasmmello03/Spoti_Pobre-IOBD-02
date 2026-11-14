@@ -29,12 +29,17 @@
                 <h1 class="page-title">Álbuns e músicas</h1>
                 <p class="page-sub">Escolha quem está ouvindo e aperte Ouvir.</p>
             </div>
+            <div class="playlist__actions">
+                <a href="/coletaneas" class="btn">Coletâneas</a>
+                <a href="/albuns" class="btn">Gerenciar capas</a>
+            </div>
         </div>
 
         {{#albuns}}
         <article class="album">
             <header class="album__head">
-                <div class="vinyl" aria-hidden="true"></div>
+                {{#temCapa}}<img class="album__cover" src="/albuns/capa/{{id}}" alt="Capa do álbum {{titulo}}">{{/temCapa}}
+                {{^temCapa}}<div class="vinyl" aria-hidden="true"></div>{{/temCapa}}
                 <div>
                     <h2 class="album__title">{{titulo}}</h2>
                     <p class="album__meta">Lançamento: {{data_lancamento}}{{^data_lancamento}}não informado{{/data_lancamento}}</p>
